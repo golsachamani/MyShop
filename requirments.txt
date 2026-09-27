@@ -1,0 +1,4 @@
+django==6.1.1
+pillow==12.3.0
+djangorestframework==3.18.1
+django-widget-tweaks==1.5.1

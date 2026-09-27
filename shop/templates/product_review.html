@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}
+  Edit Your Review
+{% endblock %}
+
+{% block content %}
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8">
+        <!-- HEADER -->
+        <h2 class="fw-bold text-center text-brand mb-5">Edit Your Review for {{ object.product.name }}</h2>
+
+        <!-- ================= PRODUCT INFO CARD ================= -->
+        <div class="brand-card mb-4 p-3 d-flex align-items-center shadow-sm">
+          <div class="me-3 flex-shrink-0" style="width:100px;">
+            {% if object.product.images.first %}
+              <img src="{{ object.product.images.first.img.url }}" class="img-fluid rounded" />
+            {% else %}
+              <div class="placeholder-img d-flex align-items-center justify-content-center rounded" style="height:100px;">
+                <span class="text-muted small">No Image</span>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="flex-grow-1">
+            <h5 class="fw-semibold mb-1">{{ object.product.name }}</h5>
+            <p class="small text-muted mb-1">
+              Category:
+              <a href="{{ object.product.category.get_absolute_url }}" class="text-brand text-decoration-none">{{ object.product.category.name }}</a>
+            </p>
+            <p class="small mb-1">
+              Brand: <strong class="text-brand">{{ object.product.brand.name }}</strong>
+            </p>
+            <p class="fw-bold text-danger mb-0">{{ object.product.price }} $</p>
+          </div>
+        </div>
+
+        <!-- ================= REVIEW FORM ================= -->
+        <div class="brand-card p-4 shadow-sm">
+          <h5 class="fw-bold text-brand mb-3">Edit Your Comment</h5>
+          <form method="post" action="{% url 'review_product' object.pk %}">
+            {% csrf_token %}
+
+            <!-- RATING -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold small text-muted">Rating</label>
+              <div class="star-rating fs-4 text-accent mb-2">
+                {% for i in '12345'|make_list %}
+                  <span class="star {% if forloop.counter <= object.rating %}selected{% endif %}" data-value="{{ forloop.counter }}">★</span>
+                {% endfor %}
+              </div>
+              <input type="hidden" name="rating" id="ratingValue" value="{{ object.rating }}" />
+            </div>
+
+            <!-- COMMENT -->
+            <div class="mb-3">
+              <label for="id_comment" class="form-label fw-semibold small text-muted">Comment</label>
+              {{ form.comment|add_class:'form-control' }}
+            </div>
+
+            <button type="submit" class="btn btn-brand w-100">Update Review</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STAR RATING SCRIPT ================= -->
+  <script>
+    const stars = document.querySelectorAll('.star-rating .star')
+    const ratingInput = document.getElementById('ratingValue')
+    
+    stars.forEach((star) => {
+      star.addEventListener('click', function () {
+        const value = this.dataset.value
+        ratingInput.value = value
+    
+        stars.forEach((s) => s.classList.remove('selected'))
+        stars.forEach((s) => {
+          if (parseInt(s.dataset.value) <= parseInt(value)) s.classList.add('selected')
+        })
+      })
+    })
+  </script>
+{% endblock %}

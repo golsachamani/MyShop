@@ -1,0 +1,131 @@
+
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ user.username }} · Profile
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-8 col-lg-6">
+
+            <div class="card border-0 shadow-sm">
+
+                <!-- Profile Header -->
+                <div class="card-header bg-white border-0 p-4">
+
+                    <div class="d-flex align-items-center">
+
+                        <div
+                            class="rounded-circle bg-primary text-white
+                                   d-flex align-items-center justify-content-center me-3"
+                            style="width: 60px; height: 60px; font-size: 24px;"
+                        >
+                            {{ user.username|first|upper }}
+                        </div>
+
+                        <div>
+
+                            <h4 class="mb-1">
+                                Profile
+                            </h4>
+
+                            <p class="text-muted mb-0">
+                                @{{ user.username }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Profile Body -->
+                <div class="card-body p-4">
+
+                    <h5 class="mb-4">
+                        Edit Profile
+                    </h5>
+
+
+                    <form method="post">
+
+                        {% csrf_token %}
+
+
+                        {% for field in form %}
+
+                            <div class="mb-4">
+
+                                <label
+                                    for="{{ field.id_for_label }}"
+                                    class="form-label fw-semibold"
+                                >
+                                    {{ field.label }}
+                                </label>
+
+
+                                {{ field }}
+
+
+                                {% if field.help_text %}
+
+                                    <div class="form-text">
+                                        {{ field.help_text }}
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% for error in field.errors %}
+
+                                    <div class="text-danger small mt-1">
+                                        {{ error }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endfor %}
+
+
+                        <div class="d-flex justify-content-between mt-4">
+
+                            <a
+                                href="{% url 'password_change' %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                Change password
+                            </a>
+
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary px-4"
+                            >
+                                Save changes
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ category.name }}
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- ================= CATEGORY HEADER ================= -->
+  <div class="category-header mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h2 class="fw-bold mb-2 text-brand">{{ category.name }}</h2>
+      <div class="brand-divider"></div>
+    </div>
+
+    {% if products %}
+      <span class="badge rounded-pill bg-light text-dark px-3 py-2 small">{{ products|length }} Products</span>
+    {% endif %}
+  </div>
+
+  <!-- ================= FILTER & SORT FORM ================= -->
+  <form method="get" class="mb-4 d-flex flex-wrap gap-3 align-items-center">
+    <!-- Attribute Filters -->
+    {% for attr_name, options in attribute_options.items %}
+      <div class="d-flex flex-column">
+        <label class="form-label small text-muted mb-1">{{ attr_name }}</label>
+        <select name="{{ attr_name }}" class="form-select form-select-sm">
+          <option value="">All</option>
+          {% for option in options %}
+            <option value="{{ option.0 }}" {% if option.1 %} selected {% endif %}>
+              {{ option.0 }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endfor %}
+
+    <!-- Order By -->
+    <div class="d-flex flex-column">
+      <label class="form-label small text-muted mb-1">Sort By</label>
+      <select name="order_by" class="form-select form-select-sm">
+        <option value="">Default</option>
+        {% for attr_name in attribute_options.keys %}
+          <option value="{{ attr_name }}"  {% if attr_name == order_by_attr %} selected {% endif %}>{{ attr_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Order Direction -->
+    <div class="d-flex flex-column">
+      <label class="form-label small text-muted mb-1">Order</label>
+      <select name="order" class="form-select form-select-sm">
+        <option value="asc" {% if order_direction == "asc" %} selected {% endif %}>Ascending</option>
+        <option value="desc" {% if order_direction == "desc" %} selected {% endif %}>Descending</option>
+      </select>
+    </div>
+
+    <!-- Submit -->
+    <div class="d-flex align-items-end">
+      <button type="submit" class="btn btn-brand btn-sm">Apply</button>
+    </div>
+  </form>
+
+  <!-- ================= SUBCATEGORIES ================= -->
+  {% if subcategories %}
+    <div class="subcategory-section mb-4">
+      <h6 class="fw-semibold text-uppercase small mb-2 text-muted">Explore Subcategories</h6>
+      <div class="d-flex flex-wrap gap-2">
+        {% for sub in subcategories %}
+          <a href="{{ sub.get_absolute_url }}" class="subcategory-chip">{{ sub.name }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- ================= PRODUCTS GRID ================= -->
+  {% if products %}
+    <div class="row g-4">
+      {% for product in products %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="brand-card product-card h-100 d-flex flex-column">
+            <!-- IMAGE -->
+            <div class="product-image-wrapper">
+              <a href="{{ product.get_absolute_url }}" class="d-block">
+                {% if product.images.exists %}
+                  <img src="{{ product.images.first.img.url }}" alt="{{ product.name }}" class="product-image" />
+                {% else %}
+                  <div class="no-image d-flex align-items-center justify-content-center">
+                    <span>No Image</span>
+                  </div>
+                {% endif %}
+              </a>
+            </div>
+
+            <!-- BODY -->
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <div class="flex-grow-1">
+                <h6 class="product-title mb-1 text-truncate"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h6>
+                <p class="product-brand mb-3">{{ product.brand.name }}</p>
+              </div>
+
+              <div>
+                <div class="product-price mb-3">{{ product.price }} $</div>
+                <a href="{{ product.get_absolute_url }}" class="btn btn-brand w-100">View Details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state text-center py-5">
+      <h5 class="mb-2">No Products Found</h5>
+      <p class="small text-muted mb-0">This category currently has no available items.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

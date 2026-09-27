@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ product.name }}
+{% endblock %}
+
+{% block content %}
+  <div class="container py-5">
+    <div class="row g-4">
+      <!-- ================= LEFT: GALLERY ================= -->
+      <div class="col-lg-5">
+        <div class="brand-card p-4">
+          {% if images %}
+            <div class="product-main-wrapper mb-3">
+              <img id="mainImage" src="{{ images.first.img.url }}" class="product-main-img w-100 rounded" />
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+              {% for image in images %}
+                <img src="{{ image.img.url }}" class="product-thumb rounded" style="cursor:pointer" onclick="document.getElementById('mainImage').src=this.src" />
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- ================= CENTER: INFO ================= -->
+      <div class="col-lg-4">
+        <div class="brand-card p-4 h-100">
+          <h2 class="fw-bold mb-2 text-brand">{{ product.name }}</h2>
+
+          <!-- Rating -->
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="text-accent fs-5">
+              {% for i in '12345'|make_list %}
+                {% if forloop.counter <= product.avg_rating %}
+                  ★
+                {% else %}
+                  <span class="text-muted">★</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <span class="fw-semibold">{{ product.avg_rating|floatformat:1 }}</span>
+            <span class="text-muted small">({{ reviews.count }} reviews)</span>
+          </div>
+
+          <p class="text-muted small mb-3">{{ product.desc }}</p>
+
+          <div class="small mb-2">
+            Brand: <strong class="text-brand">{{ product.brand.name }}</strong>
+          </div>
+
+          <div class="small">
+            Category: <a href="{{ product.category.get_absolute_url }}" class="text-brand text-decoration-none">{{ product.category.name }}</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= RIGHT: PURCHASE ================= -->
+      <div class="col-lg-3">
+        <div class="brand-card p-4 purchase-box">
+          <!-- Price -->
+          <div id="productPrice" class="fs-3 fw-bold text-brand mb-3">{{ product.price }} $</div>
+
+          <!-- Hidden selected variant -->
+          <input type="hidden" id="selectedVariant" name="variant_id" />
+
+          <!-- Variant Stock Box -->
+          <div id="variantStockBox" class="mb-3 fw-bold"></div>
+
+          <!-- Variant Section -->
+          {% if variants %}
+            <div class="small fw-semibold text-muted mb-2">Choose Color</div>
+            <div class="d-flex gap-2 flex-wrap mb-3">
+              {% for v in variants %}
+                {% for attr in v.attributes.all %}
+                  {% if attr.attribute.name|lower == 'color' %}
+                    <button type="button" class="btn btn-outline-brand btn-sm variant-btn" data-id="{{ v.id }}" data-price="{{ v.price }}" data-stock="{{ v.stock }}">{{ attr.value }}</button>
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <!-- Buttons -->
+           <form action="{% url 'add_to_cart' product.id %}" method="post">
+            {% csrf_token %}
+            {{ add_to_cart_form.as_p }} 
+            <td class="product-quantity">
+            <button class="btn btn-brand w-100 mb-2" id="addToCartBtn" abled>Add to Cart</button>
+          </form> 
+          <button class="btn btn-outline-brand w-100" id="buyNowBtn" disabled>Buy Now</button>
+        </div>
+      </div>
+    </div> <!-- row -->
+
+    <!-- ================= SPECIFICATIONS ================= -->
+    <div class="brand-card p-4 mt-5">
+      <h5 class="fw-bold text-brand mb-4">Technical Specifications</h5>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <tbody>
+            {% for attr in attributes %}
+              <tr>
+                <th class="text-muted small w-25">{{ attr.attribute.name }}</th>
+                <td>{{ attr.value }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="2" class="text-muted">No specifications available.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ================= REVIEWS ================= -->
+    <div class="mt-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold text-brand mb-0">Reviews</h5>
+        {% if request.user.is_authenticated %}
+          <button type="button" class="btn btn-brand btn-sm" data-bs-toggle="modal" data-bs-target="#reviewModal">Write Review</button>
+        {% endif %}
+      </div>
+
+      {% if reviews %}
+        <div class="row g-3">
+          {% for review in reviews %}
+            <div class="col-md-6">
+              <div class="brand-card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div>
+                    <strong>{{ review.user.username }}</strong>
+                    <small class="text-muted ms-2">{{ review.created_at|date:'Y/m/d' }}</small>
+                  </div>
+                  {% if request.user == review.user %}
+                    <a href="{% url 'review_product' review.id %}" class="btn btn-sm btn-outline-brand">Edit</a>
+                  {% endif %}
+                </div>
+
+                <div class="text-accent mb-2">
+                  {% for i in '12345'|make_list %}
+                    {% if forloop.counter <= review.rating %}
+                      ★
+                    {% else %}
+                      <span class="text-muted">★</span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <p class="small text-muted mb-0">{{ review.comment }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">No reviews yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ================= VARIANT SCRIPT ================= -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const variantButtons = document.querySelectorAll('.variant-btn')
+      const priceBox = document.getElementById('productPrice')
+      const selectedVariant = document.getElementById('selectedVariant')
+      const stockBox = document.getElementById('variantStockBox')
+      const addToCartBtn = document.getElementById('addToCartBtn')
+      const buyNowBtn = document.getElementById('buyNowBtn')
+    
+      variantButtons.forEach((btn) => {
+        btn.addEventListener('click', function () {
+          // Reset buttons
+          variantButtons.forEach((b) => b.classList.remove('btn-brand'))
+          variantButtons.forEach((b) => b.classList.add('btn-outline-brand'))
+    
+          // Activate clicked
+          this.classList.remove('btn-outline-brand')
+          this.classList.add('btn-brand')
+    
+          // Update price
+          priceBox.innerText = this.dataset.price + ' $'
+    
+          // Store selected variant
+          selectedVariant.value = this.dataset.id
+    
+          // Update stock
+          const stock = parseInt(this.dataset.stock)
+          if (stock > 5) {
+            stockBox.innerHTML = `<span class="text-success">In Stock (${stock} available)</span>`
+            addToCartBtn.disabled = false
+            buyNowBtn.disabled = false
+          } else if (stock > 0) {
+            stockBox.innerHTML = `<span class="text-warning">Only ${stock} left in stock!</span>`
+            addToCartBtn.disabled = false
+            buyNowBtn.disabled = false
+          } else {
+            stockBox.innerHTML = `<span class="text-secondary">Out of Stock</span>`
+            addToCartBtn.disabled = true
+            buyNowBtn.disabled = true
+          }
+        })
+      })
+    })
+  </script>
+
+  <!-- ================= REVIEW MODAL ================= -->
+  {% if request.user.is_authenticated %}
+    <div class="modal fade" id="reviewModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content brand-card">
+          <div class="modal-header border-0">
+            <h5 class="modal-title text-brand">Write a Review</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="{{ product.get_absolute_url }}">
+              {% csrf_token %}
+
+              <div class="mb-3">
+                <label class="form-label small">Rating</label>
+                <div class="star-rating fs-4 text-accent" id="starRating">
+                  {% for i in '12345'|make_list %}
+                    <span class="star" data-value="{{ i }}" style="cursor:pointer;">★</span>
+                  {% endfor %}
+                </div>
+                <input type="hidden" name="rating" id="ratingValue" value="0" />
+              </div>
+
+              <div class="mb-3">
+                <textarea name="comment" class="form-control" rows="3" placeholder="Write your review..."></textarea>
+              </div>
+
+              <div class="text-end">
+                <button type="button" class="btn btn-outline-brand btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-brand btn-sm">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const stars = document.querySelectorAll('#starRating .star')
+        const ratingInput = document.getElementById('ratingValue')
+      
+        stars.forEach((star) => {
+          star.addEventListener('mouseover', function () {
+            const val = parseInt(this.dataset.value)
+            stars.forEach((s, i) => {
+              if (i < val) s.classList.add('text-accent')
+              else s.classList.remove('text-accent')
+            })
+          })
+          star.addEventListener('click', function () {
+            ratingInput.value = this.dataset.value
+          })
+        })
+      
+        const starContainer = document.getElementById('starRating')
+        starContainer.addEventListener('mouseleave', function () {
+          const current = parseInt(ratingInput.value)
+          stars.forEach((s, i) => {
+            if (i < current) s.classList.add('text-accent')
+            else s.classList.remove('text-accent')
+          })
+        })
+      })
+    </script>
+  {% endif %}
+{% endblock %}

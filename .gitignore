@@ -1,0 +1,193 @@
+# =========================================================
+
+# Python
+
+# =========================================================
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Python cache
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.tox/
+.nox/
+
+# Coverage
+
+.coverage
+.coverage.*
+htmlcov/
+
+# =========================================================
+
+# Virtual Environment
+
+# =========================================================
+
+venv/
+.venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# =========================================================
+
+# Environment Variables / Secrets
+
+# =========================================================
+
+.env
+.env.*
+!.env.example
+
+# =========================================================
+
+# Django
+
+# =========================================================
+
+*.log
+
+# Local Django database
+
+db.sqlite3
+db.sqlite3-journal
+
+# Django static/media files generated locally
+
+/static/
+/media/
+
+# Collected static files
+
+staticfiles/
+
+# =========================================================
+
+# Django migrations
+
+# =========================================================
+
+# IMPORTANT:
+
+# Do NOT ignore migrations in a real project.
+
+# Migrations should normally be committed to Git.
+
+# */migrations/*.py
+
+# !*/migrations/**init**.py
+
+# =========================================================
+
+# IDE / Editors
+
+# =========================================================
+
+.vscode/
+.idea/
+
+# VS Code
+
+*.code-workspace
+
+# Vim
+
+*.swp
+*.swo
+
+# Sublime Text
+
+*.sublime-workspace
+*.sublime-project
+
+# =========================================================
+
+# Operating System
+
+# =========================================================
+
+# Linux
+
+*~
+
+# macOS
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+
+# =========================================================
+
+# Build / Distribution
+
+# =========================================================
+
+build/
+dist/
+*.egg-info/
+.eggs/
+
+pip-wheel-metadata/
+
+# =========================================================
+
+# Jupyter Notebook
+
+# =========================================================
+
+.ipynb_checkpoints/
+
+# =========================================================
+
+# Docker
+
+# =========================================================
+
+# Local Docker environment files
+
+docker-compose.override.yml
+
+# =========================================================
+
+# Temporary files
+
+# =========================================================
+
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# =========================================================
+
+# Test / Local generated files
+
+# =========================================================
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================================================
+
+# OS / Editor leftovers
+
+# =========================================================
+
+*.orig
+*.rej

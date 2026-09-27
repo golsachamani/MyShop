@@ -1,0 +1,21 @@
+<li class="dropdown-submenu">
+  <a href="{{ category.get_absolute_url }}" class="dropdown-item fw-bold text-dark">{{ category.name }}</a>
+
+  {% if category.subcategories.exists or category.products.exists %}
+    <ul class="dropdown-menu">
+
+      {# زیرشاخه‌ها #}
+      {% for child in category.subcategories.all %}
+        {% include 'partials/category_menu.html' with category=child %}
+      {% endfor %}
+
+      {# محصولات دسته (تا 5 محصول) #}
+      {% for product in category.products.all|slice:":5" %}
+        <li>
+          <a class="dropdown-item text-muted small" href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+        </li>
+      {% endfor %}
+
+    </ul>
+  {% endif %}
+</li>

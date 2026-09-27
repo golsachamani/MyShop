@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="fw-bold">{{ page_title }}</h3>
+      <a href="{% if page_title == 'Featured Products' %}
+          {% url 'featured_list' %}
+        {% elif page_title == 'New Arrivals' %}
+          {% url 'new_list' %}
+        {% elif page_title == 'Special Offers' %}
+          {% url 'special_offer_list' %}
+        {% endif %}"
+        class="text-brand text-decoration-none">
+        View All
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {% for product in products %}
+        <div class="col-6 col-md-3">
+          <div class="brand-card product-card h-100 position-relative">
+            {% if product.is_best_seller %}
+              {% include 'best_seller_ribbon.html' %}
+            {% endif %}
+
+            <div class="product-image-wrapper">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}" />
+              {% endif %}
+            </div>
+
+            <div class="p-3">
+              <div class="product-title mb-2">
+                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="product-price">${{ product.price }}</span>
+                <button class="btn btn-sm btn-outline-brand">Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
