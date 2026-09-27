@@ -345,4 +345,7 @@ The project is being developed incrementally, with testing, API functionality, c
 
 ## 📄 License
 
-No license has been specified for this project yet.
+This project is licensed under the MIT License.
+
+See the [LICENSE](LICENSE) file for the full license text.
+
